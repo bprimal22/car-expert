@@ -11,8 +11,10 @@ import { useToast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { useChat } from "ai/react"
 
+import {VehicleData} from "@/lib/vehicleDatabases/vehicleData";
+
 interface ChatInterfaceProps {
-  carData: any
+  vehicleData: VehicleData
 }
 
 type Message = {
@@ -27,7 +29,7 @@ declare global {
   }
 }
 
-export default function ChatInterface({ carData }: ChatInterfaceProps) {
+export default function ChatInterface({ vehicleData }: ChatInterfaceProps) {
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -39,11 +41,11 @@ export default function ChatInterface({ carData }: ChatInterfaceProps) {
       {
         id: "welcome",
         role: "assistant",
-        content: `Hello! I'm your AI car expert. I see you have a ${carData.year} ${carData.make} ${carData.model}. How can I help you with your vehicle today?`,
+        content: `Hello! I'm your AI car expert. I see you have a ${vehicleData.basic.year} ${vehicleData.basic.make} ${vehicleData.basic.model}. How can I help you with your vehicle today?`,
       },
     ],
     body: {
-      carData,
+      vehicleData: vehicleData,
     },
   })
 

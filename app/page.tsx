@@ -11,17 +11,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import VinScanner from "@/components/vin-scanner"
 import ChatInterface from "@/components/chat-interface"
+import processVin from "@/lib/vehicleDatabases/processVin";
+import {VehicleData} from "@/lib/vehicleDatabases/vehicleData";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("scan")
   const [vinNumber, setVinNumber] = useState("")
-  const [carData, setCarData] = useState<any>(null)
+  const [vehicleData, setVehicleData] = useState<VehicleData>(null)
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
   const handleVinCapture = async (vin: string) => {
     setVinNumber(vin)
-    await fetchCarData(vin)
+    await handleFetchingVehicleData(vin)
     setActiveTab("info")
   }
 
@@ -35,27 +37,15 @@ export default function Home() {
       })
       return
     }
-    await fetchCarData(vinNumber)
+
+    await handleFetchingVehicleData(vinNumber)
+
   }
 
-  const fetchCarData = async (vin: string) => {
+  const handleFetchingVehicleData = async (vin: string) => {
     setIsLoading(true)
     try {
-      // In a real app, this would be an API call to a car database
-      // For demo purposes, we'll simulate a response
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setCarData({
-        make: "Toyota",
-        model: "Camry",
-        year: "2020",
-        engine: "2.5L 4-Cylinder",
-        transmission: "8-Speed Automatic",
-        drivetrain: "Front-Wheel Drive",
-        fuelType: "Gasoline",
-        mpg: "28 city / 39 highway",
-        vin: vin,
-      })
-      setActiveTab("info")
+      await processVin(vin).then(setVehicleData)
     } catch (error) {
       toast({
         title: "Error",
@@ -66,7 +56,6 @@ export default function Home() {
       setIsLoading(false)
     }
   }
-
   return (
     <main className="container max-w-md mx-auto p-4">
       <Card className="border-none shadow-none">
@@ -81,10 +70,10 @@ export default function Home() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 mb-4">
               <TabsTrigger value="scan">Scan VIN</TabsTrigger>
-              <TabsTrigger value="info" disabled={!carData}>
+              <TabsTrigger value="info" disabled={!vehicleData}>
                 Car Info
               </TabsTrigger>
-              <TabsTrigger value="chat" disabled={!carData}>
+              <TabsTrigger value="chat" disabled={!vehicleData}>
                 Expert Chat
               </TabsTrigger>
             </TabsList>
@@ -126,30 +115,29 @@ export default function Home() {
             </TabsContent>
 
             <TabsContent value="info" className="mt-0">
-              {carData && (
+              {vehicleData && (
                 <Card>
                   <CardHeader>
                     <CardTitle>
-                      {carData.year} {carData.make} {carData.model}
+                      {vehicleData.basic.year} {vehicleData.basic.make} {vehicleData.basic.model}
                     </CardTitle>
-                    <CardDescription>VIN: {carData.vin}</CardDescription>
+                    <CardDescription>VIN: {vehicleData.intro.vin}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="font-medium">Engine:</div>
-                      <div>{carData.engine}</div>
+                      <div>{vehicleData.engine.engine_description}</div>
 
                       <div className="font-medium">Transmission:</div>
-                      <div>{carData.transmission}</div>
+                      <div>{vehicleData.transmission.transmission_style}</div>
 
                       <div className="font-medium">Drivetrain:</div>
-                      <div>{carData.drivetrain}</div>
+                      <div>{vehicleData.drivetrain.drive_type}</div>
 
                       <div className="font-medium">Fuel Type:</div>
-                      <div>{carData.fuelType}</div>
+                      <div>{vehicleData.fuel.fuel_type}</div>
 
                       <div className="font-medium">Fuel Economy:</div>
-                      <div>{carData.mpg}</div>
                     </div>
                   </CardContent>
                   <CardFooter>
@@ -162,7 +150,7 @@ export default function Home() {
             </TabsContent>
 
             <TabsContent value="chat" className="mt-0">
-              {carData && <ChatInterface carData={carData} />}
+              {vehicleData && <ChatInterface vehicleData={vehicleData} />}
             </TabsContent>
           </Tabs>
         </CardContent>
