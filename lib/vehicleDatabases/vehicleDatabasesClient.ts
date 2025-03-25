@@ -10,7 +10,7 @@ export class VehicleDatabasesClient {
 
     constructor(authKey: string) {
         this.authKey = authKey;
-        this.baseUrl = `https://api.vehicledatabases.com/vin-decode`;
+        this.baseUrl = 'https://api.vehicledatabases.com';
         this.axiosInstance = axios.create({
             baseURL: this.baseUrl,
             timeout: 10000,
@@ -18,7 +18,7 @@ export class VehicleDatabasesClient {
     }
 
     public async decodeVin(vin: string): Promise<any> {
-        const endpoint = `/${vin}`;
+        const endpoint = `/vin-decode/${vin}`;
 
         const config: AxiosRequestConfig = {
             headers: {
