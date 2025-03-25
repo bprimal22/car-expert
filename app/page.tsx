@@ -39,13 +39,13 @@ export default function Home() {
     }
 
     await handleFetchingVehicleData(vinNumber)
-
   }
 
   const handleFetchingVehicleData = async (vin: string) => {
     setIsLoading(true)
     try {
       await processVin(vin).then(setVehicleData)
+      setActiveTab("info")
     } catch (error) {
       toast({
         title: "Error",

@@ -28,7 +28,6 @@ export class VehicleDatabasesClient {
 
         try {
             const response = await this.axiosInstance.get(endpoint, config);
-            console.log(response)
             return response.data;
         } catch (error: any) {
             throw new Error(`Error fetching vehicle data: ${error.response?.data?.message || error.message}`);
